@@ -2,11 +2,18 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateRecipes } from "@/lib/ai";
 import { daysBetween } from "@/lib/date";
+import { checkAppSecret } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const { preference } = (await req.json()) as { preference: "homestyle" | "fatloss" };
+  if (!checkAppSecret(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  let preference: "homestyle" | "fatloss";
+  try {
+    ({ preference } = (await req.json()) as { preference: "homestyle" | "fatloss" });
+  } catch {
+    return NextResponse.json({ error: "invalid request body" }, { status: 400 });
+  }
   const foods = await prisma.foodItem.findMany();
   const now = new Date();
   const sorted = [...foods].sort((a, b) => daysBetween(now, a.expiryDate) - daysBetween(now, b.expiryDate));

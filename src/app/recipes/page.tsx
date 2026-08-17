@@ -13,7 +13,7 @@ export default function RecipesPage() {
     setLoading(true); setErr(""); setRecipes([]);
     try {
       const res = await fetch("/api/recipes", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json", "x-app-secret": localStorage.getItem("appSecret") ?? "" },
         body: JSON.stringify({ preference }),
       });
       const data = await res.json();

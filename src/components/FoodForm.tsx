@@ -18,6 +18,7 @@ const empty: FoodFormValues = {
 export default function FoodForm({ initial }: { initial?: FoodFormValues }) {
   const [v, setV] = useState<FoodFormValues>(initial ?? empty);
   const [err, setErr] = useState("");
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
   const editing = Boolean(v.id);
 
@@ -26,28 +27,35 @@ export default function FoodForm({ initial }: { initial?: FoodFormValues }) {
   }
 
   async function submit() {
+    if (saving) return;
+    setSaving(true);
     setErr("");
-    const secret = localStorage.getItem("appSecret") ?? "";
-    const payload = {
-      name: v.name, category: v.category || null, quantity: v.quantity || null, storage: v.storage,
-      productionDate: v.productionDate || null,
-      shelfLifeDays: v.shelfLifeDays ? Number(v.shelfLifeDays) : null,
-      expiryDate: v.expiryDate || null,
-      reminderDays: v.reminderDays ? v.reminderDays.split(",").map((s) => Number(s.trim())).filter((n) => n > 0) : null,
-    };
-    const res = await fetch(editing ? `/api/foods/${v.id}` : "/api/foods", {
-      method: editing ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json", "x-app-secret": secret },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) { setErr((await res.json()).error ?? "保存失败"); return; }
-    router.push("/");
-    router.refresh();
+    try {
+      const secret = localStorage.getItem("appSecret") ?? "";
+      const payload = {
+        name: v.name, category: v.category || null, quantity: v.quantity || null, storage: v.storage,
+        productionDate: v.productionDate || null,
+        shelfLifeDays: v.shelfLifeDays ? Number(v.shelfLifeDays) : null,
+        expiryDate: v.expiryDate || null,
+        reminderDays: v.reminderDays ? v.reminderDays.split(",").map((s) => Number(s.trim())).filter((n) => n > 0) : null,
+      };
+      const res = await fetch(editing ? `/api/foods/${v.id}` : "/api/foods", {
+        method: editing ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json", "x-app-secret": secret },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) { setErr((await res.json()).error ?? "保存失败"); return; }
+      router.push("/");
+      router.refresh();
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function remove() {
     const secret = localStorage.getItem("appSecret") ?? "";
-    await fetch(`/api/foods/${v.id}`, { method: "DELETE", headers: { "x-app-secret": secret } });
+    const res = await fetch(`/api/foods/${v.id}`, { method: "DELETE", headers: { "x-app-secret": secret } });
+    if (!res.ok) { setErr((await res.json().catch(() => ({}))).error ?? "删除失败"); return; }
     router.push("/"); router.refresh();
   }
 
@@ -68,7 +76,7 @@ export default function FoodForm({ initial }: { initial?: FoodFormValues }) {
       <label className="text-sm text-gray-600">或直接填到期日</label>
       <input type="date" className={field} value={v.expiryDate} onChange={(e) => set("expiryDate", e.target.value)} />
       <input className={field} placeholder="提醒节点（留空用默认，如 30,7,3）" value={v.reminderDays} onChange={(e) => set("reminderDays", e.target.value)} />
-      <button onClick={submit} className="w-full bg-blue-600 text-white rounded py-2 mb-2">保存</button>
+      <button onClick={submit} disabled={saving} className="w-full bg-blue-600 text-white rounded py-2 mb-2 disabled:opacity-50">保存</button>
       {editing && <button onClick={remove} className="w-full bg-red-100 text-red-700 rounded py-2">删除</button>}
     </div>
   );
