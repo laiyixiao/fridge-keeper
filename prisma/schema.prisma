@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Storage {
+  FRIDGE
+  FREEZER
+  PANTRY
+}
+
+model FoodItem {
+  id             String    @id @default(cuid())
+  name           String
+  category       String?
+  quantity       String?
+  storage        Storage   @default(FRIDGE)
+  productionDate DateTime?
+  shelfLifeDays  Int?
+  expiryDate     DateTime
+  reminderDays   Int[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  reminders      ReminderLog[]
+}
+
+model ReminderLog {
+  id          String   @id @default(cuid())
+  foodItem    FoodItem @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
+  foodItemId  String
+  reminderDay Int
+  sentAt      DateTime @default(now())
+
+  @@unique([foodItemId, reminderDay])
+}
+
+model Settings {
+  id                  Int     @id @default(1)
+  defaultReminderDays Int[]   @default([30, 7, 3])
+  serverchanSendkey   String?
+  pushHour            Int     @default(12)
+}
