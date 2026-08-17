@@ -431,7 +431,7 @@ git commit -m "feat: add Shanghai-timezone date utilities"
   export function findDueReminders(foods: FoodForCheck[], sent: SentReminder[], today: Date): DueItem[];
   export function buildReminderMessage(due: DueItem[], today: Date): { title: string; desp: string };
   ```
-- 规则：过期 `daysLeft < 0` → `reminderDay = -1, expired = true`；否则命中最小的、满足 `daysLeft <= d` 且未发过的节点 `d`（每样食品当天最多一条）。
+- 规则：过期 `daysLeft < 0` → `reminderDay = -1, expired = true`；否则取满足 `daysLeft <= d` 的**最小**节点 `d`（当前最相关的阈值），**仅当该节点未发过**时才提醒（**不下探**到更大的未发节点）；每样食品当天最多一条。
 
 - [ ] **Step 1: 写失败测试**
 
@@ -515,12 +515,11 @@ export function findDueReminders(foods: FoodForCheck[], sent: SentReminder[], to
       }
       continue;
     }
+    // 取满足 daysLeft <= d 的最小节点（当前最相关阈值），仅当它未发过才提醒，不下探
     const nodes = [...f.reminderDays].sort((a, b) => a - b);
-    for (const d of nodes) {
-      if (daysLeft <= d && !sentSet.has(`${f.id}:${d}`)) {
-        out.push({ foodId: f.id, name: f.name, quantity: f.quantity, daysLeft, reminderDay: d, expired: false });
-        break;
-      }
+    const applicable = nodes.find((d) => daysLeft <= d);
+    if (applicable !== undefined && !sentSet.has(`${f.id}:${applicable}`)) {
+      out.push({ foodId: f.id, name: f.name, quantity: f.quantity, daysLeft, reminderDay: applicable, expired: false });
     }
   }
   return out;

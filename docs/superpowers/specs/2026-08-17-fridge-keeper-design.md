@@ -101,7 +101,7 @@ Next.js App (Vercel)
 
 **每天定时任务流程**（Vercel Cron，每天 12:00 Asia/Shanghai 触发内部 API）：
 1. 取出所有食品，计算每样"距到期天数" `daysLeft = expiry_date - today`。
-2. 对每样食品，遍历其提醒节点 `d`：若 `daysLeft <= d` 且该 `(food, d)` 未在 `reminder_log` 中，则视为命中待发。
+2. 对每样食品，取满足 `daysLeft <= d` 的**最小**提醒节点 `d`（当前最相关的阈值）；仅当该 `(food, d)` 未在 `reminder_log` 中时视为命中待发（不下探到更大的未发节点，避免发出"还有更多天"这类陈旧、更不紧急的提醒）。
 3. 已过期食品（`daysLeft < 0`）归为"已过期"提醒（同样用 log 去重）。
 4. 将当天所有命中项**按剩余天数分组、合并为一条消息**，通过 Server酱推送。
 5. 推送成功后，为每个命中项写入 `reminder_log`。
