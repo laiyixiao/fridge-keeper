@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { generateRecipes } from "@/lib/ai";
 import { daysBetween } from "@/lib/date";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   const { preference } = (await req.json()) as { preference: "homestyle" | "fatloss" };
   const foods = await prisma.foodItem.findMany();

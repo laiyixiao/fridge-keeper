@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { checkAppSecret } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 async function getOrCreate() {
   return prisma.settings.upsert({ where: { id: 1 }, update: {}, create: { id: 1 } });
 }

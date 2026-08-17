@@ -4,6 +4,8 @@ import { findDueReminders, buildReminderMessage, FoodForCheck } from "@/lib/expi
 import { sendServerChan } from "@/lib/notify";
 import { checkCronSecret } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   if (!checkCronSecret(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { checkAppSecret } from "@/lib/auth";
 import { normalizeFood, FoodInput } from "@/lib/food-input";
 
+export const dynamic = "force-dynamic";
+
 type Ctx = { params: { id: string } };
 
 export async function GET(_req: Request, { params }: Ctx) {

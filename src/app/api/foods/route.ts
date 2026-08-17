@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { checkAppSecret } from "@/lib/auth";
 import { normalizeFood, FoodInput } from "@/lib/food-input";
 
+export const dynamic = "force-dynamic";
+
 async function defaultReminderDays(): Promise<number[]> {
   const s = await prisma.settings.findUnique({ where: { id: 1 } });
   return s?.defaultReminderDays ?? [30, 7, 3];
