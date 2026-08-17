@@ -1,0 +1,9 @@
+{
+  "name": "冰箱管家",
+  "short_name": "冰箱管家",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#2563eb",
+  "icons": []
+}
