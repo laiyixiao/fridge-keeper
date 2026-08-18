@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { checkAppSecret } from "@/lib/auth";
 import { normalizeFood, FoodInput } from "@/lib/food-input";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +13,6 @@ export async function GET(_req: Request, { params }: Ctx) {
 }
 
 export async function PUT(req: Request, { params }: Ctx) {
-  if (!checkAppSecret(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   try {
     const body = (await req.json()) as FoodInput;
     const s = await prisma.settings.findUnique({ where: { id: 1 } });
@@ -28,8 +26,7 @@ export async function PUT(req: Request, { params }: Ctx) {
   }
 }
 
-export async function DELETE(req: Request, { params }: Ctx) {
-  if (!checkAppSecret(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+export async function DELETE(_req: Request, { params }: Ctx) {
   await prisma.foodItem.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }

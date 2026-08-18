@@ -4,49 +4,98 @@ import { useEffect, useState } from "react";
 export default function SettingsPage() {
   const [defaultReminderDays, setDefault] = useState("30,7,3");
   const [sendkey, setSendkey] = useState("");
+  const [hasSendkey, setHasSendkey] = useState(false);
   const [pushHour, setPushHour] = useState("12");
-  const [appSecret, setAppSecret] = useState("");
   const [msg, setMsg] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setAppSecret(localStorage.getItem("appSecret") ?? "");
-    fetch("/api/settings").then((r) => r.json()).then((s) => {
-      setDefault((s.defaultReminderDays ?? [30, 7, 3]).join(","));
-      setPushHour(String(s.pushHour ?? 12));
-    });
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((s) => {
+        setDefault((s.defaultReminderDays ?? [30, 7, 3]).join(","));
+        setPushHour(String(s.pushHour ?? 12));
+        setHasSendkey(Boolean(s.hasSendkey));
+      })
+      .catch(() => {});
   }, []);
 
   async function save() {
+    if (saving) return;
+    setSaving(true);
     setMsg("");
-    localStorage.setItem("appSecret", appSecret);
-    const body: Record<string, unknown> = {
-      defaultReminderDays: defaultReminderDays.split(",").map((s) => Number(s.trim())).filter((n) => n > 0),
-      pushHour: Number(pushHour),
-    };
-    if (sendkey) body.serverchanSendkey = sendkey;
-    const res = await fetch("/api/settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", "x-app-secret": appSecret },
-      body: JSON.stringify(body),
-    });
-    setMsg(res.ok ? "已保存" : "保存失败（检查访问密钥）");
+    try {
+      const body: Record<string, unknown> = {
+        defaultReminderDays: defaultReminderDays
+          .split(",")
+          .map((s) => Number(s.trim()))
+          .filter((n) => Number.isInteger(n) && n > 0),
+        pushHour: Number(pushHour),
+      };
+      if (sendkey) body.serverchanSendkey = sendkey;
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        setMsg("已保存");
+        if (sendkey) {
+          setHasSendkey(true);
+          setSendkey("");
+        }
+      } else {
+        setMsg("保存失败，请稍后再试");
+      }
+    } catch {
+      setMsg("网络错误，请稍后再试");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  const field = "w-full border rounded px-3 py-2 mb-3";
   return (
-    <main className="p-4 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-3">⚙️ 设置</h1>
-      {msg && <div className="bg-green-100 text-green-700 px-3 py-2 rounded mb-3 text-sm">{msg}</div>}
-      <label className="text-sm text-gray-600">默认提醒节点（逗号分隔，天）</label>
-      <input className={field} value={defaultReminderDays} onChange={(e) => setDefault(e.target.value)} />
-      <label className="text-sm text-gray-600">Server酱 SendKey</label>
-      <input className={field} placeholder="留空则不修改" value={sendkey} onChange={(e) => setSendkey(e.target.value)} />
-      <label className="text-sm text-gray-600">每日推送小时（0-23，Asia/Shanghai）</label>
-      <input className={field} type="number" value={pushHour} onChange={(e) => setPushHour(e.target.value)} />
-      <label className="text-sm text-gray-600">访问密钥 appSecret（保存在本机，用于增删改）</label>
-      <input className={field} value={appSecret} onChange={(e) => setAppSecret(e.target.value)} />
-      <button onClick={save} className="w-full bg-blue-600 text-white rounded py-2">保存</button>
-      <p className="text-xs text-gray-400 mt-3">注：推送时间实际由 Vercel Cron 固定（默认中午 12:00）；此处小时用于记录/未来扩展。</p>
+    <main>
+      <header className="mb-5">
+        <h1 className="text-[26px] font-bold text-stone-900">设置</h1>
+        <p className="mt-0.5 text-[14px] text-stone-500">提醒规则与推送渠道</p>
+      </header>
+
+      {msg && (
+        <div className="mb-4 rounded-xl bg-teal-50 px-4 py-3 text-[14px] text-teal-700">{msg}</div>
+      )}
+
+      <div className="app-card space-y-4 p-4">
+        <div>
+          <label className="label">默认提醒节点（天，逗号分隔）</label>
+          <input className="field" value={defaultReminderDays} onChange={(e) => setDefault(e.target.value)} />
+          <p className="mt-1.5 text-[12px] text-stone-400">新食材未单独设置时，按这些天数在到期前提醒</p>
+        </div>
+        <div>
+          <label className="label">
+            Server酱 SendKey{hasSendkey && <span className="ml-2 text-teal-600">已配置</span>}
+          </label>
+          <input
+            className="field"
+            placeholder={hasSendkey ? "已配置，留空则不修改" : "填入以开启微信推送"}
+            value={sendkey}
+            onChange={(e) => setSendkey(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="label">每日推送时间（0–23 时，北京时间）</label>
+          <input className="field" type="number" value={pushHour} onChange={(e) => setPushHour(e.target.value)} />
+        </div>
+      </div>
+
+      <button onClick={save} disabled={saving} className="btn btn-primary mt-6 w-full">
+        {saving ? "保存中…" : "保存"}
+      </button>
+
+      <p className="mt-4 text-center text-[12px] leading-relaxed text-stone-400">
+        提醒推送由服务器每天定时触发（默认中午 12:00）。<br />
+        此处时间用于记录与后续扩展。
+      </p>
     </main>
   );
 }

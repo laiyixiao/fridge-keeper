@@ -4,15 +4,25 @@ import { useRouter } from "next/navigation";
 
 export interface FoodFormValues {
   id?: string;
-  name: string; category: string; quantity: string;
+  name: string;
+  category: string;
+  quantity: string;
   storage: "FRIDGE" | "FREEZER" | "PANTRY";
-  productionDate: string; shelfLifeDays: string; expiryDate: string;
+  productionDate: string;
+  shelfLifeDays: string;
+  expiryDate: string;
   reminderDays: string; // 逗号分隔
 }
 
 const empty: FoodFormValues = {
-  name: "", category: "", quantity: "", storage: "FRIDGE",
-  productionDate: "", shelfLifeDays: "", expiryDate: "", reminderDays: "",
+  name: "",
+  category: "",
+  quantity: "",
+  storage: "FRIDGE",
+  productionDate: "",
+  shelfLifeDays: "",
+  expiryDate: "",
+  reminderDays: "",
 };
 
 export default function FoodForm({ initial }: { initial?: FoodFormValues }) {
@@ -28,56 +38,117 @@ export default function FoodForm({ initial }: { initial?: FoodFormValues }) {
 
   async function submit() {
     if (saving) return;
-    setSaving(true);
     setErr("");
+    setSaving(true);
     try {
-      const secret = localStorage.getItem("appSecret") ?? "";
       const payload = {
-        name: v.name, category: v.category || null, quantity: v.quantity || null, storage: v.storage,
+        name: v.name,
+        category: v.category || null,
+        quantity: v.quantity || null,
+        storage: v.storage,
         productionDate: v.productionDate || null,
         shelfLifeDays: v.shelfLifeDays ? Number(v.shelfLifeDays) : null,
         expiryDate: v.expiryDate || null,
-        reminderDays: v.reminderDays ? v.reminderDays.split(",").map((s) => Number(s.trim())).filter((n) => n > 0) : null,
+        reminderDays: v.reminderDays
+          ? v.reminderDays.split(",").map((s) => Number(s.trim())).filter((n) => n > 0)
+          : null,
       };
       const res = await fetch(editing ? `/api/foods/${v.id}` : "/api/foods", {
         method: editing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json", "x-app-secret": secret },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) { setErr((await res.json()).error ?? "保存失败"); return; }
-      router.push("/");
+      if (!res.ok) {
+        setErr((await res.json().catch(() => ({}))).error ?? "保存失败");
+        return;
+      }
+      router.push(editing ? `/food/${v.id}` : "/");
       router.refresh();
+    } catch {
+      setErr("网络错误，请稍后再试");
     } finally {
       setSaving(false);
     }
   }
 
-  async function remove() {
-    const secret = localStorage.getItem("appSecret") ?? "";
-    const res = await fetch(`/api/foods/${v.id}`, { method: "DELETE", headers: { "x-app-secret": secret } });
-    if (!res.ok) { setErr((await res.json().catch(() => ({}))).error ?? "删除失败"); return; }
-    router.push("/"); router.refresh();
-  }
-
-  const field = "w-full border rounded px-3 py-2 mb-3";
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-3">{editing ? "编辑食品" : "录入食品"}</h1>
-      {err && <div className="bg-red-100 text-red-700 px-3 py-2 rounded mb-3 text-sm">{err}</div>}
-      <input className={field} placeholder="名称*" value={v.name} onChange={(e) => set("name", e.target.value)} />
-      <input className={field} placeholder="分类（如 乳制品）" value={v.category} onChange={(e) => set("category", e.target.value)} />
-      <input className={field} placeholder="数量（如 2盒）" value={v.quantity} onChange={(e) => set("quantity", e.target.value)} />
-      <select className={field} value={v.storage} onChange={(e) => set("storage", e.target.value as FoodFormValues["storage"])}>
-        <option value="FRIDGE">冷藏</option><option value="FREEZER">冷冻</option><option value="PANTRY">常温</option>
-      </select>
-      <label className="text-sm text-gray-600">生产日期</label>
-      <input type="date" className={field} value={v.productionDate} onChange={(e) => set("productionDate", e.target.value)} />
-      <input className={field} type="number" placeholder="保质期天数" value={v.shelfLifeDays} onChange={(e) => set("shelfLifeDays", e.target.value)} />
-      <label className="text-sm text-gray-600">或直接填到期日</label>
-      <input type="date" className={field} value={v.expiryDate} onChange={(e) => set("expiryDate", e.target.value)} />
-      <input className={field} placeholder="提醒节点（留空用默认，如 30,7,3）" value={v.reminderDays} onChange={(e) => set("reminderDays", e.target.value)} />
-      <button onClick={submit} disabled={saving} className="w-full bg-blue-600 text-white rounded py-2 mb-2 disabled:opacity-50">保存</button>
-      {editing && <button onClick={remove} className="w-full bg-red-100 text-red-700 rounded py-2">删除</button>}
-    </div>
+    <main>
+      <div className="mb-5 flex items-center justify-between">
+        <button onClick={() => router.push("/")} className="btn btn-ghost -ml-2 px-2 py-1.5 text-[14px]">
+          ← 返回
+        </button>
+        <h1 className="text-[18px] font-bold text-stone-900">{editing ? "编辑食材" : "录入食材"}</h1>
+        <span className="w-12" />
+      </div>
+
+      {err && (
+        <div className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-[14px] text-rose-600">{err}</div>
+      )}
+
+      <div className="app-card space-y-4 p-4">
+        <div>
+          <label className="label">名称 *</label>
+          <input className="field" placeholder="如 牛奶" value={v.name} onChange={(e) => set("name", e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="label">分类</label>
+            <input className="field" placeholder="乳制品" value={v.category} onChange={(e) => set("category", e.target.value)} />
+          </div>
+          <div>
+            <label className="label">数量</label>
+            <input className="field" placeholder="2 盒" value={v.quantity} onChange={(e) => set("quantity", e.target.value)} />
+          </div>
+        </div>
+        <div>
+          <label className="label">存放位置</label>
+          <select className="field" value={v.storage} onChange={(e) => set("storage", e.target.value as FoodFormValues["storage"])}>
+            <option value="FRIDGE">冷藏</option>
+            <option value="FREEZER">冷冻</option>
+            <option value="PANTRY">常温</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="app-card mt-4 space-y-4 p-4">
+        <p className="text-[13px] text-stone-500">
+          到期日：填「生产日期 + 保质期」自动计算，<span className="text-stone-700">或</span>直接填到期日
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="label">生产日期</label>
+            <input type="date" className="field" value={v.productionDate} onChange={(e) => set("productionDate", e.target.value)} />
+          </div>
+          <div>
+            <label className="label">保质期（天）</label>
+            <input type="number" inputMode="numeric" className="field" placeholder="如 15" value={v.shelfLifeDays} onChange={(e) => set("shelfLifeDays", e.target.value)} />
+          </div>
+        </div>
+        <div>
+          <label className="label">或 直接填到期日</label>
+          <input type="date" className="field" value={v.expiryDate} onChange={(e) => set("expiryDate", e.target.value)} />
+        </div>
+        <div>
+          <label className="label">提醒节点（天，逗号分隔，留空用默认 30,7,3）</label>
+          <input className="field" placeholder="30,7,3" value={v.reminderDays} onChange={(e) => set("reminderDays", e.target.value)} />
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-2.5">
+        <button onClick={submit} disabled={saving} className="btn btn-primary w-full">
+          {saving ? "保存中…" : "保存"}
+        </button>
+        <div className="flex gap-2.5">
+          {editing && (
+            <button onClick={() => router.push(`/food/${v.id}`)} className="btn btn-secondary flex-1">
+              取消
+            </button>
+          )}
+          <button onClick={() => router.push("/")} className={`btn btn-ghost ${editing ? "flex-1" : "w-full"}`}>
+            返回冰箱
+          </button>
+        </div>
+      </div>
+    </main>
   );
 }

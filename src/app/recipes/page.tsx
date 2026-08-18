@@ -1,55 +1,124 @@
 "use client";
 import { useState } from "react";
 
-interface Recipe { name: string; ingredients: string[]; steps: string[]; usesExpiring: string[]; calories?: string; }
+interface Recipe {
+  name: string;
+  ingredients: string[];
+  steps: string[];
+  usesExpiring: string[];
+  calories?: string;
+}
 
 export default function RecipesPage() {
   const [preference, setPreference] = useState<"homestyle" | "fatloss">("homestyle");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [touched, setTouched] = useState(false);
 
   async function generate() {
-    setLoading(true); setErr(""); setRecipes([]);
+    setLoading(true);
+    setErr("");
+    setRecipes([]);
+    setTouched(true);
     try {
       const res = await fetch("/api/recipes", {
-        method: "POST", headers: { "Content-Type": "application/json", "x-app-secret": localStorage.getItem("appSecret") ?? "" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ preference }),
       });
       const data = await res.json();
-      if (!res.ok) { setErr(data.error ?? "生成失败"); return; }
+      if (!res.ok) {
+        setErr(data.error ?? "生成失败");
+        return;
+      }
       setRecipes(data.recipes ?? []);
-    } catch { setErr("网络错误，请稍后再试"); }
-    finally { setLoading(false); }
+    } catch {
+      setErr("网络错误，请稍后再试");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <main className="p-4 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-3">🍳 今天吃什么</h1>
-      <div className="flex gap-2 mb-3">
-        {(["homestyle", "fatloss"] as const).map((p) => (
-          <button key={p} onClick={() => setPreference(p)}
-            className={`flex-1 rounded py-2 border ${preference === p ? "bg-blue-600 text-white" : "bg-white"}`}>
-            {p === "homestyle" ? "家常" : "减脂"}
+    <main>
+      <header className="mb-5">
+        <h1 className="text-[26px] font-bold text-stone-900">今天吃什么</h1>
+        <p className="mt-0.5 text-[14px] text-stone-500">根据冰箱现有食材，优先用掉临期的</p>
+      </header>
+
+      <div className="mb-3 grid grid-cols-2 gap-1.5 rounded-2xl bg-stone-100 p-1.5">
+        {([
+          { key: "homestyle", label: "家常", icon: "🍚" },
+          { key: "fatloss", label: "减脂", icon: "🥗" },
+        ] as const).map((p) => (
+          <button
+            key={p.key}
+            onClick={() => setPreference(p.key)}
+            className={`rounded-xl py-2.5 text-[15px] font-semibold transition ${
+              preference === p.key ? "bg-white text-teal-700 shadow-sm" : "text-stone-500"
+            }`}
+          >
+            {p.icon} {p.label}
           </button>
         ))}
       </div>
-      <button onClick={generate} disabled={loading} className="w-full bg-green-600 text-white rounded py-2 mb-3 disabled:opacity-50">
-        {loading ? "生成中…" : "根据冰箱食材推荐"}
+
+      <button onClick={generate} disabled={loading} className="btn btn-primary mb-5 w-full">
+        {loading ? "正在为你想菜谱…" : "根据冰箱食材推荐"}
       </button>
-      {err && <div className="bg-red-100 text-red-700 px-3 py-2 rounded mb-3 text-sm">{err}</div>}
-      {recipes.map((r, i) => (
-        <div key={i} className="rounded-lg border bg-white p-3 mb-3">
-          <div className="font-semibold">{r.name}{r.calories ? ` · ${r.calories}` : ""}</div>
-          {r.usesExpiring.length > 0 && (
-            <div className="text-xs text-red-600 mt-1">用掉临期：{r.usesExpiring.join("、")}</div>
-          )}
-          <div className="text-sm mt-2">用料：{r.ingredients.join("、")}</div>
-          <ol className="text-sm mt-1 list-decimal list-inside">
-            {r.steps.map((s, j) => <li key={j}>{s}</li>)}
-          </ol>
+
+      {err && <div className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-[14px] text-rose-600">{err}</div>}
+
+      {loading && (
+        <div className="flex flex-col gap-3">
+          {[0, 1].map((i) => (
+            <div key={i} className="app-card animate-pulse space-y-3 p-4">
+              <div className="h-5 w-1/3 rounded bg-stone-200" />
+              <div className="h-3 w-2/3 rounded bg-stone-100" />
+              <div className="h-3 w-full rounded bg-stone-100" />
+            </div>
+          ))}
         </div>
-      ))}
+      )}
+
+      {!loading && recipes.length > 0 && (
+        <div className="flex flex-col gap-3.5">
+          {recipes.map((r, i) => (
+            <article key={i} className="app-card p-4">
+              <div className="flex items-baseline justify-between gap-2">
+                <h2 className="text-[17px] font-bold text-stone-900">{r.name}</h2>
+                {r.calories && <span className="shrink-0 text-[13px] font-medium text-teal-700">{r.calories}</span>}
+              </div>
+              {r.usesExpiring.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {r.usesExpiring.map((x) => (
+                    <span key={x} className="chip bg-amber-100 text-amber-800">
+                      用掉临期 · {x}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="mt-3 text-[13px] text-stone-500">用料</p>
+              <p className="text-[14px] text-stone-700">{r.ingredients.join("、")}</p>
+              <ol className="mt-3 space-y-1.5">
+                {r.steps.map((s, j) => (
+                  <li key={j} className="flex gap-2.5 text-[14px] leading-relaxed text-stone-700">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[12px] font-semibold text-teal-700">
+                      {j + 1}
+                    </span>
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {!loading && touched && !err && recipes.length === 0 && (
+        <p className="mt-8 text-center text-[14px] text-stone-400">没有推荐结果，换个偏好再试试</p>
+      )}
     </main>
   );
 }

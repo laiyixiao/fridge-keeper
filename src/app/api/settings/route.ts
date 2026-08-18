@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { checkAppSecret } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +17,6 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  if (!checkAppSecret(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   let body: { defaultReminderDays?: number[]; serverchanSendkey?: string; pushHour?: number };
   try {
     body = (await req.json()) as {

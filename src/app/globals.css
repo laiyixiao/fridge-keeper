@@ -1,3 +1,57 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg: #f7f4ee;
+  --ink: #1c1917;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans CJK SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  h1 {
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .app-card {
+    @apply rounded-2xl border border-stone-200/80 bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_10px_28px_-8px_rgba(28,25,23,0.10)];
+  }
+  .field {
+    @apply w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-[15px] text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-teal-700 focus:ring-4 focus:ring-teal-700/10;
+  }
+  .label {
+    @apply mb-1.5 block text-[13px] font-medium text-stone-500;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-[15px] font-semibold transition duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-teal-700 text-white shadow-sm hover:bg-teal-800;
+  }
+  .btn-secondary {
+    @apply bg-stone-100 text-stone-700 hover:bg-stone-200;
+  }
+  .btn-ghost {
+    @apply text-stone-500 hover:bg-stone-100 hover:text-stone-800;
+  }
+  .btn-danger {
+    @apply bg-rose-50 text-rose-600 hover:bg-rose-100;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-medium;
+  }
+}

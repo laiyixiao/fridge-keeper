@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { checkAppSecret } from "@/lib/auth";
 import { normalizeFood, FoodInput } from "@/lib/food-input";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +15,6 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  if (!checkAppSecret(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   try {
     const body = (await req.json()) as FoodInput;
     const n = normalizeFood(body, await defaultReminderDays());
