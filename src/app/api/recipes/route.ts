@@ -25,6 +25,6 @@ export async function POST(req: Request) {
     const recipes = await generateRecipes({ ingredients, expiringSoon, preference: preference ?? "homestyle" });
     return NextResponse.json({ recipes });
   } catch (e) {
-    return NextResponse.json({ error: "推菜暂时不可用，请稍后再试" }, { status: 502 });
+    return NextResponse.json({ error: "推菜暂时不可用，请稍后再试", detail: (e as Error).message }, { status: 502 });
   }
 }
