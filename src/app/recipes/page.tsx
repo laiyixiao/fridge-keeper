@@ -1,44 +1,8 @@
 "use client";
-import { useState } from "react";
-
-interface Recipe {
-  name: string;
-  ingredients: string[];
-  steps: string[];
-  usesExpiring: string[];
-  calories?: string;
-}
+import { useRecipes } from "@/components/RecipesProvider";
 
 export default function RecipesPage() {
-  const [preference, setPreference] = useState<"homestyle" | "fatloss">("homestyle");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [touched, setTouched] = useState(false);
-
-  async function generate() {
-    setLoading(true);
-    setErr("");
-    setRecipes([]);
-    setTouched(true);
-    try {
-      const res = await fetch("/api/recipes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ preference }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setErr(data.error ?? "生成失败");
-        return;
-      }
-      setRecipes(data.recipes ?? []);
-    } catch {
-      setErr("网络错误，请稍后再试");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { preference, setPreference, loading, error, recipes, touched, generate } = useRecipes();
 
   return (
     <main>
@@ -65,10 +29,10 @@ export default function RecipesPage() {
       </div>
 
       <button onClick={generate} disabled={loading} className="btn btn-primary mb-5 w-full">
-        {loading ? "正在为你想菜谱…" : "根据冰箱食材推荐"}
+        {loading ? "正在为你想菜谱…" : recipes.length > 0 ? "换一批" : "根据冰箱食材推荐"}
       </button>
 
-      {err && <div className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-[14px] text-rose-600">{err}</div>}
+      {error && <div className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-[14px] text-rose-600">{error}</div>}
 
       {loading && (
         <div className="flex flex-col gap-3">
@@ -116,7 +80,7 @@ export default function RecipesPage() {
         </div>
       )}
 
-      {!loading && touched && !err && recipes.length === 0 && (
+      {!loading && touched && !error && recipes.length === 0 && (
         <p className="mt-8 text-center text-[14px] text-stone-400">没有推荐结果，换个偏好再试试</p>
       )}
     </main>
