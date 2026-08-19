@@ -9,8 +9,7 @@ export default async function EditPage({ params }: { params: { id: string } }) {
   const f = await prisma.foodItem.findUnique({ where: { id: params.id } });
   if (!f) notFound();
   const initial: FoodFormValues = {
-    id: f.id, name: f.name, category: f.category ?? "", quantity: f.quantity ?? "",
-    storage: f.storage,
+    id: f.id, name: f.name, quantity: f.quantity ?? "",
     productionDate: f.productionDate ? toShanghaiDateString(f.productionDate) : "",
     shelfLifeDays: f.shelfLifeDays?.toString() ?? "",
     expiryDate: toShanghaiDateString(f.expiryDate),

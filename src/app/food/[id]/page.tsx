@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { daysBetween, toShanghaiDateString } from "@/lib/date";
-import { foodStatus, toneChip, toneDot, storageLabel } from "@/lib/food-status";
+import { foodStatus, toneChip, toneDot } from "@/lib/food-status";
 import DeleteFoodButton from "@/components/DeleteFoodButton";
 
 export const dynamic = "force-dynamic";
@@ -47,8 +47,6 @@ export default async function FoodDetailPage({ params }: { params: { id: string 
 
       <div className="app-card divide-y divide-stone-100">
         {f.quantity && <Row label="数量" value={f.quantity} />}
-        {f.category && <Row label="分类" value={f.category} />}
-        <Row label="存放位置" value={storageLabel[f.storage] ?? f.storage} />
         {f.productionDate && <Row label="生产日期" value={toShanghaiDateString(f.productionDate)} />}
         {f.shelfLifeDays != null && <Row label="保质期" value={`${f.shelfLifeDays} 天`} />}
         <Row label="到期日" value={toShanghaiDateString(f.expiryDate)} />

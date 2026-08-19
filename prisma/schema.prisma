@@ -7,18 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Storage {
-  FRIDGE
-  FREEZER
-  PANTRY
-}
-
 model FoodItem {
   id             String    @id @default(cuid())
   name           String
-  category       String?
   quantity       String?
-  storage        Storage   @default(FRIDGE)
   productionDate DateTime?
   shelfLifeDays  Int?
   expiryDate     DateTime

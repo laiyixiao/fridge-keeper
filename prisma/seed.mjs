@@ -6,12 +6,12 @@ const now = Date.now();
 const at = (d) => new Date(now + d * day);
 
 const foods = [
-  { name: "豆腐", category: "豆制品", quantity: "1 盒", storage: "FRIDGE", expiryDate: at(-2), reminderDays: [30, 7, 3] },
-  { name: "牛奶", category: "乳制品", quantity: "2 盒", storage: "FRIDGE", expiryDate: at(2), reminderDays: [30, 7, 3] },
-  { name: "酸奶", category: "乳制品", quantity: "4 杯", storage: "FRIDGE", expiryDate: at(6), reminderDays: [30, 7, 3] },
-  { name: "鸡蛋", category: "蛋类", quantity: "10 个", storage: "FRIDGE", expiryDate: at(20), reminderDays: [30, 7, 3] },
-  { name: "菠菜", category: "蔬菜", quantity: "1 把", storage: "FRIDGE", expiryDate: at(4), reminderDays: [30, 7, 3] },
-  { name: "冷冻虾仁", category: "海鲜", quantity: "500 g", storage: "FREEZER", expiryDate: at(90), reminderDays: [30, 7, 3] },
+  { name: "豆腐", quantity: "1 盒", expiryDate: at(-2), reminderDays: [30, 7, 3] },
+  { name: "牛奶", quantity: "2 盒", expiryDate: at(2), reminderDays: [30, 7, 3] },
+  { name: "酸奶", quantity: "4 杯", expiryDate: at(6), reminderDays: [30, 7, 3] },
+  { name: "鸡蛋", quantity: "10 个", expiryDate: at(20), reminderDays: [30, 7, 3] },
+  { name: "菠菜", quantity: "1 把", expiryDate: at(4), reminderDays: [30, 7, 3] },
+  { name: "冷冻虾仁", quantity: "500 g", expiryDate: at(90), reminderDays: [30, 7, 3] },
 ];
 
 async function main() {

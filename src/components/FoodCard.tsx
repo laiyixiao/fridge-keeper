@@ -3,15 +3,13 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { daysBetween, toShanghaiDateString } from "@/lib/date";
-import { foodStatus, toneChip, toneDot, storageLabel } from "@/lib/food-status";
+import { foodStatus, toneChip, toneDot } from "@/lib/food-status";
 
 export interface FoodView {
   id: string;
   name: string;
   quantity: string | null;
-  storage: string;
   expiryDate: string;
-  category: string | null;
 }
 
 const ACTION_W = 84; // 删除按钮宽度（px）
@@ -99,9 +97,8 @@ export default function FoodCard({ food }: { food: FoodView }) {
             <span className="truncate text-[16px] font-semibold text-stone-900">{food.name}</span>
             {food.quantity && <span className="shrink-0 text-[13px] text-stone-400">{food.quantity}</span>}
           </div>
-          <div className="mt-1 flex items-center gap-2 text-[13px] text-stone-500">
-            <span className="chip bg-stone-100 text-stone-500">{storageLabel[food.storage] ?? food.storage}</span>
-            <span>{toShanghaiDateString(new Date(food.expiryDate))} 到期</span>
+          <div className="mt-1 text-[13px] text-stone-500">
+            {toShanghaiDateString(new Date(food.expiryDate))} 到期
           </div>
         </div>
         <span className={`chip shrink-0 ${toneChip[status.tone]}`}>{status.label}</span>

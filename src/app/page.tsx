@@ -13,9 +13,7 @@ export default async function Home() {
     id: f.id,
     name: f.name,
     quantity: f.quantity,
-    storage: f.storage,
     expiryDate: f.expiryDate.toISOString(),
-    category: f.category,
   }));
 
   return (

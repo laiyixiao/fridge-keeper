@@ -27,9 +27,3 @@ export const toneDot: Record<Tone, string> = {
   soon: "bg-amber-500",
   fresh: "bg-teal-500",
 };
-
-export const storageLabel: Record<string, string> = {
-  FRIDGE: "冷藏",
-  FREEZER: "冷冻",
-  PANTRY: "常温",
-};

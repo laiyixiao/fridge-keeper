@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 export interface FoodFormValues {
   id?: string;
   name: string;
-  category: string;
   quantity: string;
-  storage: "FRIDGE" | "FREEZER" | "PANTRY";
   productionDate: string;
   shelfLifeDays: string;
   expiryDate: string;
@@ -16,9 +14,7 @@ export interface FoodFormValues {
 
 const empty: FoodFormValues = {
   name: "",
-  category: "",
   quantity: "",
-  storage: "FRIDGE",
   productionDate: "",
   shelfLifeDays: "",
   expiryDate: "",
@@ -43,9 +39,7 @@ export default function FoodForm({ initial }: { initial?: FoodFormValues }) {
     try {
       const payload = {
         name: v.name,
-        category: v.category || null,
         quantity: v.quantity || null,
-        storage: v.storage,
         productionDate: v.productionDate || null,
         shelfLifeDays: v.shelfLifeDays ? Number(v.shelfLifeDays) : null,
         expiryDate: v.expiryDate || null,
@@ -90,23 +84,9 @@ export default function FoodForm({ initial }: { initial?: FoodFormValues }) {
           <label className="label">名称 *</label>
           <input className="field" placeholder="如 牛奶" value={v.name} onChange={(e) => set("name", e.target.value)} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="label">分类</label>
-            <input className="field" placeholder="乳制品" value={v.category} onChange={(e) => set("category", e.target.value)} />
-          </div>
-          <div>
-            <label className="label">数量</label>
-            <input className="field" placeholder="2 盒" value={v.quantity} onChange={(e) => set("quantity", e.target.value)} />
-          </div>
-        </div>
         <div>
-          <label className="label">存放位置</label>
-          <select className="field" value={v.storage} onChange={(e) => set("storage", e.target.value as FoodFormValues["storage"])}>
-            <option value="FRIDGE">冷藏</option>
-            <option value="FREEZER">冷冻</option>
-            <option value="PANTRY">常温</option>
-          </select>
+          <label className="label">数量</label>
+          <input className="field" placeholder="2 盒" value={v.quantity} onChange={(e) => set("quantity", e.target.value)} />
         </div>
       </div>
 

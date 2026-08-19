@@ -1,14 +1,12 @@
 import { computeExpiryDate } from "@/lib/date";
 
 export interface FoodInput {
-  name: string; category?: string | null; quantity?: string | null;
-  storage?: "FRIDGE" | "FREEZER" | "PANTRY";
+  name: string; quantity?: string | null;
   productionDate?: string | null; shelfLifeDays?: number | null;
   expiryDate?: string | null; reminderDays?: number[] | null;
 }
 export interface NormalizedFood {
-  name: string; category: string | null; quantity: string | null;
-  storage: "FRIDGE" | "FREEZER" | "PANTRY";
+  name: string; quantity: string | null;
   productionDate: Date | null; shelfLifeDays: number | null;
   expiryDate: Date; reminderDays: number[];
 }
@@ -42,9 +40,7 @@ export function normalizeFood(input: FoodInput, defaultReminderDays: number[]): 
 
   return {
     name,
-    category: input.category?.trim() || null,
     quantity: input.quantity?.trim() || null,
-    storage: input.storage ?? "FRIDGE",
     productionDate, shelfLifeDays, expiryDate, reminderDays,
   };
 }

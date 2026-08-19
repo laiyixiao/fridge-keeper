@@ -64,6 +64,9 @@ async function generateViaOpenAI(input: RecipeInput): Promise<Recipe[]> {
         { role: "user", content: buildPrompt(input) },
       ],
       response_format: { type: "json_object" },
+      // 关掉推理模型的"思考过程"，速度约快 2-3 倍（qwen3 系列支持）
+      enable_thinking: false,
+      max_tokens: 1500,
     }),
   });
   if (!res.ok) throw new Error(`百炼调用失败：${res.status}`);
