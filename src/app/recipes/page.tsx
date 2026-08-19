@@ -50,10 +50,13 @@ export default function RecipesPage() {
         <div className="flex flex-col gap-3.5">
           {recipes.map((r, i) => (
             <article key={i} className="app-card p-4">
-              <div className="flex items-baseline justify-between gap-2">
-                <h2 className="text-[17px] font-bold text-stone-900">{r.name}</h2>
-                {r.calories && <span className="shrink-0 text-[13px] font-medium text-teal-700">{r.calories}</span>}
-              </div>
+              <h2 className="text-[17px] font-bold leading-snug text-stone-900">{r.name}</h2>
+              {r.calories && (
+                <p className="mt-1 flex items-start gap-1 text-[13px] leading-relaxed text-teal-700">
+                  <span className="shrink-0">🔥</span>
+                  <span>{r.calories}</span>
+                </p>
+              )}
               {r.usesExpiring.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {r.usesExpiring.map((x) => (
