@@ -62,7 +62,7 @@ export default function SettingsPage() {
       </header>
 
       {msg && (
-        <div className="mb-4 rounded-xl bg-teal-50 px-4 py-3 text-[14px] text-teal-700">{msg}</div>
+        <div className="mb-4 rounded-xl bg-[var(--accent-soft)] px-4 py-3 text-[14px] text-[var(--accent)]">{msg}</div>
       )}
 
       <div className="app-card space-y-4 p-4">
@@ -73,7 +73,7 @@ export default function SettingsPage() {
         </div>
         <div>
           <label className="label">
-            Server酱 SendKey{hasSendkey && <span className="ml-2 text-teal-600">已配置</span>}
+            Server酱 SendKey{hasSendkey && <span className="ml-2 text-[var(--accent)]">已配置</span>}
           </label>
           <input
             className="field"

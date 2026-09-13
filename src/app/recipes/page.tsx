@@ -20,7 +20,7 @@ export default function RecipesPage() {
             key={p.key}
             onClick={() => setPreference(p.key)}
             className={`rounded-xl py-2.5 text-[15px] font-semibold transition ${
-              preference === p.key ? "bg-white text-teal-700 shadow-sm" : "text-stone-500"
+              preference === p.key ? "bg-white text-[var(--accent)] shadow-sm" : "text-stone-500"
             }`}
           >
             {p.icon} {p.label}
@@ -52,7 +52,7 @@ export default function RecipesPage() {
             <article key={i} className="app-card p-4">
               <h2 className="text-[17px] font-bold leading-snug text-stone-900">{r.name}</h2>
               {r.calories && (
-                <p className="mt-1 flex items-start gap-1 text-[13px] leading-relaxed text-teal-700">
+                <p className="mt-1 flex items-start gap-1 text-[13px] leading-relaxed text-[var(--accent)]">
                   <span className="shrink-0">🔥</span>
                   <span>{r.calories}</span>
                 </p>
@@ -71,7 +71,7 @@ export default function RecipesPage() {
               <ol className="mt-3 space-y-1.5">
                 {r.steps.map((s, j) => (
                   <li key={j} className="flex gap-2.5 text-[14px] leading-relaxed text-stone-700">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[12px] font-semibold text-teal-700">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[12px] font-semibold text-[var(--accent)]">
                       {j + 1}
                     </span>
                     <span>{s}</span>

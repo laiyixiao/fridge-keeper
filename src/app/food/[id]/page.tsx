@@ -54,7 +54,7 @@ export default async function FoodDetailPage({ params }: { params: { id: string 
           <span className="text-[14px] text-stone-500">提醒节点</span>
           <div className="flex flex-wrap justify-end gap-1.5">
             {f.reminderDays.map((d) => (
-              <span key={d} className="chip bg-teal-50 text-teal-700">
+              <span key={d} className="chip bg-[var(--accent-soft)] text-[var(--accent)]">
                 前 {d} 天
               </span>
             ))}

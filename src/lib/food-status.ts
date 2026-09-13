@@ -16,14 +16,14 @@ export function foodStatus(daysLeft: number): FoodStatus {
 
 export const toneChip: Record<Tone, string> = {
   expired: "bg-stone-100 text-stone-500",
-  urgent: "bg-rose-100 text-rose-700",
-  soon: "bg-amber-100 text-amber-800",
-  fresh: "bg-teal-50 text-teal-700",
+  urgent: "bg-rose-50 text-rose-700",
+  soon: "bg-amber-50 text-amber-700",
+  fresh: "bg-[var(--accent-soft)] text-[var(--accent)]",
 };
 
 export const toneDot: Record<Tone, string> = {
   expired: "bg-stone-300",
   urgent: "bg-rose-500",
   soon: "bg-amber-500",
-  fresh: "bg-teal-500",
+  fresh: "bg-[var(--accent)]",
 };

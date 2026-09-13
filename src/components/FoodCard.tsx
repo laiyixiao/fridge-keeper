@@ -89,19 +89,19 @@ export default function FoodCard({ food }: { food: FoodView }) {
           touchAction: "pan-y",
           transition: dragging ? "none" : "transform 0.2s ease-out",
         }}
-        className={`relative flex items-center gap-3.5 bg-white px-4 py-3.5 ${dimmed ? "opacity-70" : ""}`}
+        className={`relative flex items-center gap-3.5 bg-[var(--card)] px-4 py-4 ${dimmed ? "opacity-65" : ""}`}
       >
         <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${toneDot[status.tone]}`} />
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate text-[16px] font-semibold text-stone-900">{food.name}</span>
-            {food.quantity && <span className="shrink-0 text-[13px] text-stone-400">{food.quantity}</span>}
+          <div className="flex items-baseline gap-2">
+            <span className="truncate text-[16px] font-semibold tracking-[-0.01em] text-[var(--ink)]">{food.name}</span>
+            {food.quantity && <span className="shrink-0 text-[13px] text-[var(--muted)]">{food.quantity}</span>}
           </div>
-          <div className="mt-1 text-[13px] text-stone-500">
+          <div className="nums mt-1 text-[13px] text-[var(--muted)]">
             {toShanghaiDateString(new Date(food.expiryDate))} 到期
           </div>
         </div>
-        <span className={`chip shrink-0 ${toneChip[status.tone]}`}>{status.label}</span>
+        <span className={`chip nums shrink-0 ${toneChip[status.tone]}`}>{status.label}</span>
       </Link>
     </div>
   );
