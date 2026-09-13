@@ -20,8 +20,9 @@ export default async function Home() {
     <main>
       <header className="mb-6 flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-[29px] font-bold tracking-[-0.025em] text-[var(--ink)]">我的冰箱</h1>
-          <p className="nums mt-1 text-[14px] text-[var(--muted)]">
+          <p className="eyebrow mb-2">FRIDGE / 冰箱清单</p>
+          <h1 className="text-[34px] leading-[1.05] text-[var(--ink)]">我的冰箱</h1>
+          <p className="nums mt-2 text-[14px] text-[var(--muted)]">
             共 {foods.length} 样食材{soonCount > 0 ? ` · ${soonCount} 样需尽快` : ""}
           </p>
         </div>
@@ -49,7 +50,14 @@ export default async function Home() {
 
       {views.length === 0 ? (
         <div className="app-card mt-6 flex flex-col items-center gap-3 px-6 py-16 text-center">
-          <span className="text-[44px]">🧊</span>
+          <span className="mb-1 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="2.5" width="14" height="19" rx="2.5" />
+              <line x1="5" y1="10" x2="19" y2="10" />
+              <line x1="8" y1="6" x2="8" y2="7.5" />
+              <line x1="8" y1="13" x2="8" y2="15.5" />
+            </svg>
+          </span>
           <p className="text-[15px] font-medium text-[var(--ink)]">冰箱还是空的</p>
           <p className="-mt-1 text-[13px] text-[var(--muted)]">点下方「录入」把食材加进来吧</p>
           <Link href="/add" className="btn btn-primary mt-2">
@@ -58,8 +66,10 @@ export default async function Home() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {views.map((f) => (
-            <FoodCard key={f.id} food={f} />
+          {views.map((f, i) => (
+            <div key={f.id} className="rise" style={{ animationDelay: `${Math.min(i, 10) * 0.05}s` }}>
+              <FoodCard food={f} />
+            </div>
           ))}
         </div>
       )}

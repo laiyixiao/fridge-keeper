@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f1ece2;
-  --bg-top: #faf7f1;
-  --card: #fffdfa;
-  --ink: #211d18;
-  --muted: #877e72;
-  --line: #e8e1d5;
-  --accent: #0e5a4f;
-  --accent-hover: #0a453c;
+  --bg: #f3eee4;
+  --bg-top: #faf6ee;
+  --card: #fffefb;
+  --ink: #1c1814;
+  --muted: #8a8073;
+  --line: #e4ddd0;
+  --accent: #14584d;
+  --accent-hover: #0e433a;
   --accent-soft: #e6efec;
 }
 
@@ -32,7 +32,8 @@ body {
 @layer base {
   h1,
   h2 {
-    letter-spacing: -0.022em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -78,5 +79,60 @@ body {
   }
   .nums {
     font-variant-numeric: tabular-nums;
+  }
+  .press {
+    @apply transition duration-150 active:scale-[0.97];
+  }
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase text-[var(--muted)];
+    letter-spacing: 0.2em;
+  }
+}
+
+/* 列表错落入场（stagger fade-up）——强 ease-out 曲线，transform+opacity */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes rise-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.rise {
+  animation: rise 0.36s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* 减弱动效：保留淡入（帮助理解内容出现），去掉位移与按压缩放 */
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: rise-fade 0.2s ease both;
+  }
+  .press {
+    transition: none;
+  }
+}
+
+/* 苹果式半透明材质导航（内容从下方透出） */
+.tabbar {
+  background-color: rgba(255, 253, 250, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+/* 尊重「减少透明度」：换成不透明实底、去毛玻璃 */
+@media (prefers-reduced-transparency: reduce) {
+  .tabbar {
+    background-color: var(--card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }

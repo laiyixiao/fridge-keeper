@@ -37,7 +37,7 @@ export default async function FoodDetailPage({ params }: { params: { id: string 
       <header className="mb-5">
         <div className="flex items-center gap-2.5">
           <span className={`h-3 w-3 rounded-full ${toneDot[status.tone]}`} />
-          <h1 className="text-[28px] font-bold text-stone-900">{f.name}</h1>
+          <h1 className="text-[32px] leading-[1.1] text-[var(--ink)]">{f.name}</h1>
         </div>
         <div className="mt-2 flex items-center gap-2">
           <span className={`chip text-[13px] ${toneChip[status.tone]}`}>{status.label}</span>

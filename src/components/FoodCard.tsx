@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { daysBetween, toShanghaiDateString } from "@/lib/date";
-import { foodStatus, toneChip, toneDot } from "@/lib/food-status";
+import { foodStatus } from "@/lib/food-status";
 
 export interface FoodView {
   id: string;
@@ -14,34 +14,57 @@ export interface FoodView {
 
 const ACTION_W = 84; // 删除按钮宽度（px）
 
+// 苹果式橡皮筋阻尼：越过边界越拉越沉（Designing Fluid Interfaces）
+function rubberband(overshoot: number, dim: number, c = 0.55) {
+  return (overshoot * dim * c) / (dim + c * Math.abs(overshoot));
+}
+
 export default function FoodCard({ food }: { food: FoodView }) {
   const daysLeft = daysBetween(new Date(), new Date(food.expiryDate));
   const status = foodStatus(daysLeft);
   const dimmed = status.tone === "expired";
+  const numColor =
+    status.tone === "urgent"
+      ? "text-rose-600"
+      : status.tone === "soon"
+        ? "text-amber-600"
+        : "text-[var(--accent)]";
   const router = useRouter();
 
   const [tx, setTx] = useState(0); // 当前左移距离（0 ~ -ACTION_W）
   const [dragging, setDragging] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const start = useRef({ x: 0, base: 0, moved: false });
+  const start = useRef({ x: 0, base: 0, moved: false, lastX: 0, lastT: 0, v: 0 });
 
   function onDown(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    start.current = { x: e.clientX, base: tx, moved: false };
+    start.current = { x: e.clientX, base: tx, moved: false, lastX: e.clientX, lastT: performance.now(), v: 0 };
     setDragging(true);
   }
   function onMove(e: React.PointerEvent) {
     if (!dragging) return;
     const dx = e.clientX - start.current.x;
     if (Math.abs(dx) > 6) start.current.moved = true;
+    // 记录瞬时速度（px/ms），释放时用来判断轻扫方向
+    const now = performance.now();
+    const dt = now - start.current.lastT;
+    if (dt > 0) start.current.v = (e.clientX - start.current.lastX) / dt;
+    start.current.lastX = e.clientX;
+    start.current.lastT = now;
+
     let next = start.current.base + dx;
-    if (next > 0) next = 0;
-    if (next < -ACTION_W) next = -ACTION_W;
+    if (next > 0) next = rubberband(next, ACTION_W); // 往右拉过头：阻尼回弹
+    else if (next < -ACTION_W) next = -ACTION_W - rubberband(-ACTION_W - next, ACTION_W); // 往左拉过头：阻尼
     setTx(next);
   }
   function onUp() {
     setDragging(false);
-    setTx((t) => (t < -ACTION_W / 2 ? -ACTION_W : 0));
+    const v = start.current.v; // <0 向左，>0 向右
+    setTx((t) => {
+      if (v < -0.35) return -ACTION_W; // 快速左扫 → 展开
+      if (v > 0.35) return 0; // 快速右扫 → 收回
+      return t < -ACTION_W / 2 ? -ACTION_W : 0; // 否则按位置
+    });
   }
   function onClick(e: React.MouseEvent) {
     if (start.current.moved) {
@@ -91,17 +114,27 @@ export default function FoodCard({ food }: { food: FoodView }) {
         }}
         className={`relative flex items-center gap-3.5 bg-[var(--card)] px-4 py-4 ${dimmed ? "opacity-65" : ""}`}
       >
-        <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${toneDot[status.tone]}`} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
-            <span className="truncate text-[16px] font-semibold tracking-[-0.01em] text-[var(--ink)]">{food.name}</span>
-            {food.quantity && <span className="shrink-0 text-[13px] text-[var(--muted)]">{food.quantity}</span>}
+            <span className="truncate text-[17px] font-semibold text-[var(--ink)]">{food.name}</span>
+            {food.quantity && <span className="shrink-0 text-[12px] text-[var(--muted)]">{food.quantity}</span>}
           </div>
-          <div className="nums mt-1 text-[13px] text-[var(--muted)]">
+          <div className="nums mt-1 text-[12.5px] text-[var(--muted)]">
             {toShanghaiDateString(new Date(food.expiryDate))} 到期
           </div>
         </div>
-        <span className={`chip nums shrink-0 ${toneChip[status.tone]}`}>{status.label}</span>
+        <div className="shrink-0 pl-2 text-right">
+          {status.tone === "expired" ? (
+            <span className="text-[15px] text-stone-400">已过期</span>
+          ) : daysLeft === 0 ? (
+            <span className="text-[15px] font-semibold text-rose-600">今天</span>
+          ) : (
+            <span className="flex items-baseline gap-0.5">
+              <span className={`nums text-[27px] font-semibold leading-none ${numColor}`}>{daysLeft}</span>
+              <span className="text-[11px] text-[var(--muted)]">天</span>
+            </span>
+          )}
+        </div>
       </Link>
     </div>
   );

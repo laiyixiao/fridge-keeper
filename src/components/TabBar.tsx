@@ -63,8 +63,8 @@ export default function TabBar() {
   const path = usePathname();
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t backdrop-blur-xl"
-      style={{ backgroundColor: "rgba(255,253,250,0.86)", borderColor: "var(--line)" }}
+      className="tabbar fixed inset-x-0 bottom-0 z-50 border-t"
+      style={{ borderColor: "var(--line)" }}
     >
       <div className="mx-auto flex max-w-md items-stretch px-2 pb-[env(safe-area-inset-bottom)]">
         {tabs.map((t) => {
@@ -76,7 +76,7 @@ export default function TabBar() {
               className="group relative flex flex-1 flex-col items-center gap-1 pb-2 pt-2.5"
             >
               <span
-                className={`absolute top-0 h-[3px] w-7 rounded-full transition-all duration-200 ${
+                className={`absolute top-0 h-[3px] w-7 rounded-full transition-colors duration-200 ${
                   active ? "bg-[var(--accent)]" : "bg-transparent"
                 }`}
               />
